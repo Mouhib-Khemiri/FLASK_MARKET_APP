@@ -1,0 +1,14 @@
+1:35:00 mins
+https://www.youtube.com/watch?v=Qr4QMBUPxWo
+
+
+set FLASK_APP=market.py
+$env:FLASK_APP = "market.py"
+flask run
+
+#To stay into the application context 
+'''with app.app_context():
+    db.create_all()'''
+    
+*I have a probleme like the relatioship between the 2 models 
+ 
