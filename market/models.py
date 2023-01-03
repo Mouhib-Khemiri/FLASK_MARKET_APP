@@ -1,6 +1,4 @@
-from market import db ,  app
-from market import bcrypt
-from market import login_manager
+from market import db, app, bcrypt, login_manager
 from flask_login import UserMixin
 
 
@@ -17,8 +15,14 @@ class User(db.Model, UserMixin):
     password_hash  = db.Column(db.String(length=60), nullable = False )
     budget = db.Column(db.Integer(), nullable = False, default= 1000)
     items= db.relationship("Item", backref='owned_user' ,lazy = True)
-
- 
+    
+    @property
+    # it adds a , if the number is greate than or equals to 4 like 1000 --> 1,000
+    def prettier_budget(self):
+        if len(str(self.budget))>=4 : 
+            return f'{str(self.budget)[:-3]},{str(self.budget)[-3:]}$'
+        else:
+            return self.budget
     #hashing a password to be more security 
     @property
     def password(self):
@@ -38,7 +42,7 @@ class Item(db.Model):
     price =  db.Column(db.Integer(), nullable = False)
     barcode =  db.Column(db.String(length=12), nullable = False, unique = True)
     description = db.Column(db.String(length=1024) , nullable = False , unique=True)
-    owner = db.Column(db.Integer() , db.ForeignKey("user.id"))
+    owner = db.Column(db.Integer(), db.ForeignKey("user.id"))
 
 #Whene you do query to display the items in Db it refers with name.
     def __repr__(self):
