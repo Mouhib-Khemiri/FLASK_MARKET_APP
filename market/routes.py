@@ -10,7 +10,7 @@ def Home_page():
     return render_template('home.html')
 
 @app.route("/market")
-@login_required
+@login_required # it related with login_view in the __init__ file it leads us to the specific route in the login_view
 def market_page():
     with app.app_context():
         items = Item.query.all()
@@ -21,12 +21,16 @@ def register_page():
     form = RegisterForm()
     if form.validate_on_submit():                                                                         #iT Was password_hash
         user_to_create = User(username = form.user_name.data , email_addresse = form.email_addresse.data , password = form.password1.data )
+        
         with app.app_context():
             db.session.add(user_to_create)
             db.session.commit()
+            
             login_user(user_to_create)
-            flash("Account Created with succesfully! You are logged in as {user_to_create.username}")   
+            flash(f"Account Created succesfully! You are logged in as {user_to_create.username}" , category= 'success')   
+        
         return(redirect(url_for('market_page')))    
+    
     if form.errors != {}:# If there is no errors in Validations
         for err_msg in form.errors.values():
             flash(f'There was an error with creating a user: {err_msg}', category='danger')
