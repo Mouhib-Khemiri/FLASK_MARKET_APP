@@ -3,13 +3,14 @@ from flask import render_template,redirect,url_for,flash
 from .models import Item,User
 from .forms import RegisterForm , LoginForm
 from market import db
-from flask_login import login_user 
+from flask_login import login_user , logout_user , login_required
 
 @app.route("/")
 def Home_page():
     return render_template('home.html')
 
 @app.route("/market")
+@login_required
 def market_page():
     with app.app_context():
         items = Item.query.all()
@@ -23,6 +24,8 @@ def register_page():
         with app.app_context():
             db.session.add(user_to_create)
             db.session.commit()
+            login_user(user_to_create)
+            flash("Account Created with succesfully! You are logged in as {user_to_create.username}")   
         return(redirect(url_for('market_page')))    
     if form.errors != {}:# If there is no errors in Validations
         for err_msg in form.errors.values():
@@ -34,21 +37,21 @@ def register_page():
 @app.route("/login", methods=["GET","POST"])
 def login_page():
     form = LoginForm()
-    
-    if form .validate_on_submit():
-        
+    if form.validate_on_submit():
         with app.app_context():
             attempted_user = User.query.filter_by(username = form.user_name.data).first()
-        
-            if attempted_user and attempted_user.check_password_correction(attempted_password = form.password.data):
-            
-                login_user(attempted_user , remember= True)
-                flash(f'succes you logged in as {attempted_user.username}', category='success')
-                return( render_template('market.html') )
-        
+            if attempted_user and attempted_user.check_password_correction(
+                attempted_password= form.password.data
+                ):
+                login_user(attempted_user)
+                flash(f'Success ! You are Logged in as {attempted_user.username}', category='success')
+                return redirect(url_for('market_page'))
             else:
-            
-                flash(f'username and password dont much !', category='danger')    
-                return render_template('login.html')
-
+                flash('username and password are not match ! Please try again ', category='danger')
     return render_template('login.html', form = form)
+
+@app.route('/logout')
+def logout_page():
+    logout_user()
+    flash('You have been Logged out!', category='info')
+    return(redirect(url_for('Home_page')))
