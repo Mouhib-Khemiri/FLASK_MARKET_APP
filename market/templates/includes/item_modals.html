@@ -50,7 +50,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form method="POST">
+          <form method="POST"> # it from forms.py and it rendred to tyhe market..html tempalte  and we allowed to use it cause we include this file in the market.html
             {{ purchase_form.hidden_tag() }}
             <h4 class="text-center">
                 Are you sure you want to buy {{ item.name }} for {{ item.price }}$ ?
