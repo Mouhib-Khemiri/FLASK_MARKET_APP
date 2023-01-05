@@ -1,4 +1,3 @@
-
 <style>
     .modal-content {
       background-color: #212121
@@ -50,7 +49,8 @@
           </button>
         </div>
         <div class="modal-body">
-          <form method="POST"> # it from forms.py and it rendred to tyhe market..html tempalte  and we allowed to use it cause we include this file in the market.html
+          <!-- it from forms.py and it rendred to tyhe market..html tempalte  and we allowed to use it cause we include this file in the market.html -->
+          <form method="POST"> 
             {{ purchase_form.hidden_tag() }}
             <h4 class="text-center">
                 Are you sure you want to buy {{ item.name }} for {{ item.price }}$ ?
@@ -58,6 +58,8 @@
             <h6 class="text-center">
                 By Cliking Purchase , you will purchase this item
             </h6>
+            <br>
+            <input type="hidden" name="purchased_item" id="purchased_item" value={{ item.name }}>
             {{ purchase_form.submit(class="btn btn-outline-success btn-block") }}
           </form>
         </div>
