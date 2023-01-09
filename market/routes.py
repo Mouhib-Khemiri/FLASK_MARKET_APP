@@ -1,7 +1,7 @@
-from market import app
+from market import app 
 from flask import render_template,redirect,url_for,flash, request
 from .models import Item,User
-from .forms import RegisterForm , LoginForm ,  PurchaseItemForm
+from .forms import RegisterForm , LoginForm , purchaseForm 
 from market import db
 from flask_login import login_user , logout_user , login_required , current_user
 from math import*
@@ -13,21 +13,37 @@ def Home_page():
 @app.route("/market", methods=['GET','POST'])
 @login_required # it related with login_view in the __init__ file it leads us to the specific route in the login_view
 def market_page():
-    with app.app_context():# to stay in the Application context
+    purchase_form = purchaseForm()
+    if request.method =='POST':
+        purchased_item_name = request.form.get("purchased_item")
+        with app.app_context():
+            p_item_obj = Item.query.filter_by(name = purchased_item_name).first()
+            if p_item_obj : 
+                if current_user.can_purchase(p_item_obj):
+                    try:
+                        p_item_obj.buy(current_user)
+                        #p_item_obj.owner = current_user.id                             I replaced all the commentary 
+                        #                                                               instuctions with Buy() Function , 
+                        #                                                               i created in the Item class                                                                                        
+                        #print(current_user.budget)                                       
+                        #current_user.budget -= p_item_obj.price
+                        #print(current_user.budget)
+                        #rec_user = User.query.filter_by(id = current_user.id).first()
+                        #rec_user.budget -= p_item_obj.price
+                        #db.session.commit()
+                        #print(f'Success ! You bouth the {purchased_item_name} with {p_item_obj.price} $')
+                        flash(f'Congratulations You bougth the {p_item_obj.name} with {p_item_obj.price} $', category='Success')
+                    except:
+                        print('Error')
+                else:
+                    flash(f"Unfortunately ! You dont have enough money to buy this {p_item_obj.name} at {p_item_obj.price} $", category='danger')
         
-        purchase_form = PurchaseItemForm() # a Class in forms.py file
+        return redirect(url_for("market_page"))
         
-        if request.method == "POST": # Whene request.methode == 'POST' request like Clicking on the submit field "Button"
-            purchased_item = request.form.get('purchased_item') # The Purchased_item Variable Contains the name of the Object {{ item.name }}
-            purchased_item_Object = Item.query.filter_by(name = purchased_item).first() # This is an object from the Item Class located in the Db whow have a name from the purchesed_item input , it returns as the {{ item.name }}
-            
-            if purchased_item_Object: # cheking if the object found in the db with his correct! name it means that he is not none : 
-                purchased_item_Object.owner = current_user.id # Give an Owner from The Class User with the id attribute to the purchase_Item_Object
-                current_user.budget -= purchased_item_Object.price #Decrease The Budget of the current_user whene he buy ana Item or article from the market 
-                db.session.commit() 
-        
-        items = Item.query.filter_by(owner=None) # the item variable Contains all the Objects located in the data base form The class Item 
-    return render_template('market.html', items = items , purchase_form = purchase_form)
+    if request.method=='GET':
+        with app.app_context():# to stay in the Application context    
+            items = Item.query.filter_by(owner  =  None)# the item variable Contains all the Objects located in the data base form The class Item 
+        return render_template('market.html', items = items , purchase_form = purchase_form)
 
 @app.route("/register", methods=['GET','POST'])
 def register_page():

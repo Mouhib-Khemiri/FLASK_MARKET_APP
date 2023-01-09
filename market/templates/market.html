@@ -1,51 +1,51 @@
 <style>
-  #right-part{
-    float:right;
-    margin-left:2px,
-  }
-  #left-part{
-    float:left;
-  }
-</style>
-{% extends 'base.html'%}
-{% block title %} 
-  Market Page 
-{% endblock%} 
-{% block content %}
-<div class="rows" style=" margin-top:15px; margin-left:2px; ">
-  <div class="col-8" id="left-part"> 
-    <h2>Available items on the Market</h2>
-    <p>Select an item to start buying</p>
-    <table class="table table-hover table-dark "> 
-      <thead> 
-        <tr> 
-          <th scope="col">ID</th> 
-          <th scope="col">Name</th> 
-          <th scope="col">Barcode</th> 
-          <th scope="col">Price</th> 
-          <th scope="col">Options</th> 
-        </tr> 
-      </thead> 
-      <tbody>
-        {% for item in items %} 
-          {% include "includes/item_modals.html" %} 
+    #right-part{
+      float:right;
+      margin-left:2px,
+    }
+    #left-part{
+      float:left;
+    }
+  </style>
+  {% extends 'base.html'%}
+  {% block title %} 
+    Market Page 
+  {% endblock%} 
+  {% block content %}
+  <div class="rows" style=" margin-top:15px; margin-left:2px; ">
+    <div class="col-8" id="left-part"> 
+      <h2>Available items on the Market</h2>
+      <p>Select an item to start buying</p>
+      <table class="table table-hover table-dark "> 
+        <thead> 
           <tr> 
-            <td>{{ item.id }}</td> 
-            <td>{{ item.name }}</td> 
-            <td>{{ item.barcode }}</td> 
-            <td>{{ item.price }}$</td> 
-            <td>
-              <button class="btn btn-outline btn-info" data-toggle="modal" data-target="#Modal-MoreInfo-{{ item.id }}">More Info</button> 
-              <button class="btn btn-outline btn-success" data-toggle="modal" data-target="#Modal-PurchaseConfirm-{{ item.id }}">purchase This item</button> 
-            </td> 
+            <th scope="col">ID</th> 
+            <th scope="col">Name</th> 
+            <th scope="col">Barcode</th> 
+            <th scope="col">Price</th> 
+            <th scope="col">Options</th> 
           </tr> 
-        {% endfor %} 
-      </tbody> 
-    </table> 
+        </thead> 
+        <tbody>
+          {% for item in items %} 
+            {% include "includes/items_modals.html" %} 
+            <tr> 
+              <td>{{ item.id }}</td> 
+              <td>{{ item.name }}</td> 
+              <td>{{ item.barcode }}</td> 
+              <td>{{ item.price }}$</td> 
+              <td>
+                <button class="btn btn-outline btn-info" data-toggle="modal" data-target="#Modal-MoreInfo-{{ item.id }}">More Info</button> 
+                <button class="btn btn-outline btn-success" data-toggle="modal" data-target="#Modal-PurchaseConfirm-{{ item.id }}">purchase This item</button> 
+              </td> 
+            </tr> 
+          {% endfor %} 
+        </tbody> 
+      </table> 
+    </div> 
+    <div class="col-4" id="right-part"> 
+      <h2>Owned items</h2>
+      <p>Click on sell item to put it back on the Market</p>   
+    </div> 
   </div> 
-  <div class="col-4" id="right-part"> 
-    <h2>Owned items</h2>
-    <p>Click on sell item to put it back on the Market</p>   
-  </div> 
-</div> 
-{% endblock%}
+  {% endblock%}
