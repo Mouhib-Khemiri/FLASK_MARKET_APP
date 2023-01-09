@@ -17,12 +17,12 @@ class User(db.Model, UserMixin):
     items= db.relationship("Item", backref='owned_user' ,lazy = True)
     
     @property
-    # it adds a , if the number is greate than or equals to 4 like 1000 --> 1,000
-    def prettier_budget(self):
-        if len(str(self.budget))>=4 : 
+    def prettier_budget(self): # it adds a , if the number is greate than or equals to 4 like 1000 --> 1,000
+        if len(str(self.budget))>4 or len(str(self.budget))==4: 
             return f'{str(self.budget)[:-3]},{str(self.budget)[-3:]}$'
         else:
             return self.budget
+    
     #hashing a password to be more security 
     @property
     def password(self):
@@ -34,7 +34,9 @@ class User(db.Model, UserMixin):
     def check_password_correction(self, attempted_password):
         return  ( bcrypt.check_password_hash(self.password_hash,attempted_password))
 
-
+    def can_purchase(self ,  item_obj):
+        return self.budget >= item_obj.price
+    
 class Item(db.Model):
     id = db.Column(db.Integer(), primary_key = True)
     name = db.Column(db.String(length=30), nullable = False, unique = True)
@@ -46,3 +48,9 @@ class Item(db.Model):
 #Whene you do query to display the items in Db it refers with name.
     def __repr__(self):
         return f'Item {self.name}'
+
+    def buy(self , user):
+        self.owner = user.id
+        rec_user = User.query.filter_by(id = user.id).first()
+        rec_user.budget -= self.price
+        db.session.commit()
