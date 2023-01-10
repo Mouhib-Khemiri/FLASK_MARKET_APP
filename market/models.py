@@ -14,7 +14,7 @@ class User(db.Model, UserMixin):
     email_addresse = db.Column(db.String(length=50), nullable = False, unique = True )
     password_hash  = db.Column(db.String(length=60), nullable = False )
     budget = db.Column(db.Integer(), nullable = False, default= 1000)
-    items= db.relationship("Item", backref='owned_user' ,lazy = True)
+    items = db.relationship('Item', backref='owned_user', lazy=True)
     
     @property
     def prettier_budget(self): # it adds a , if the number is greate than or equals to 4 like 1000 --> 1,000
@@ -37,6 +37,9 @@ class User(db.Model, UserMixin):
     def can_purchase(self ,  item_obj):
         return self.budget >= item_obj.price
     
+    #def can_sell(self , item_obj): # it checks if the user (self) is really has this Item 
+    #    return item_obj in self.items.first()
+    
 class Item(db.Model):
     id = db.Column(db.Integer(), primary_key = True)
     name = db.Column(db.String(length=30), nullable = False, unique = True)
@@ -54,3 +57,9 @@ class Item(db.Model):
         rec_user = User.query.filter_by(id = user.id).first()
         rec_user.budget -= self.price
         db.session.commit()
+    
+    #def sell(self , user):
+        #self.owner = None # it will return without owner cause it sold and puted on the market
+        #rec_user = User.query.filter_by(id = user.id).first()
+        #rec_user.budget += self.price
+        #db.session.commit()  

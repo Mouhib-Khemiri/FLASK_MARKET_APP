@@ -1,7 +1,7 @@
 from market import app 
 from flask import render_template,redirect,url_for,flash, request
 from .models import Item,User
-from .forms import RegisterForm , LoginForm , purchaseForm 
+from .forms import RegisterForm , LoginForm , purchaseForm , SellForm
 from market import db
 from flask_login import login_user , logout_user , login_required , current_user
 from math import*
@@ -14,18 +14,21 @@ def Home_page():
 @login_required # it related with login_view in the __init__ file it leads us to the specific route in the login_view
 def market_page():
     purchase_form = purchaseForm()
+    selling_form = SellForm()
     if request.method =='POST':
+        # Purchase Item Logic
         purchased_item_name = request.form.get("purchased_item")
         with app.app_context():
             p_item_obj = Item.query.filter_by(name = purchased_item_name).first()
             if p_item_obj : 
                 if current_user.can_purchase(p_item_obj):
                     try:
-                        p_item_obj.buy(current_user)
-                        #p_item_obj.owner = current_user.id                             I replaced all the commentary 
+                        p_item_obj.buy(current_user)                                    
+                        #p_item_obj.owner = current_user.id                             {
+                        #                                                               I replaced all the commentary 
                         #                                                               instuctions with Buy() Function , 
                         #                                                               i created in the Item class                                                                                        
-                        #print(current_user.budget)                                       
+                        #print(current_user.budget)                                      } 
                         #current_user.budget -= p_item_obj.price
                         #print(current_user.budget)
                         #rec_user = User.query.filter_by(id = current_user.id).first()
@@ -37,13 +40,28 @@ def market_page():
                         print('Error')
                 else:
                     flash(f"Unfortunately ! You dont have enough money to buy this {p_item_obj.name} at {p_item_obj.price} $", category='danger')
-        
+        # Sell Item Logic
+            sold_item_name = request.form.get("sold_item")
+            s_item_obj = Item.query.filter_by(name = sold_item_name).first()
+            if s_item_obj:
+                #if s_item_obj in current_user.items:
+                try:
+                    s_item_obj.owner = None # it will returnS without owner cause it sold and puted on the market 
+                    rec_user = User.query.filter_by(id = current_user.id).first()                                 
+                    rec_user.budget += s_item_obj.price
+                    db.session.commit()
+                    flash(f"Congratulations ! You Sold the {s_item_obj.name}",category='Success')
+                except:
+                        print('Error')
+                #else:
+                    #flash("SomeThings wrong with selling this Item !",category='danger')        
         return redirect(url_for("market_page"))
         
     if request.method=='GET':
         with app.app_context():# to stay in the Application context    
             items = Item.query.filter_by(owner  =  None)# the item variable Contains all the Objects located in the data base form The class Item 
-        return render_template('market.html', items = items , purchase_form = purchase_form)
+            owned_items = Item.query.filter_by(owner = current_user.id)
+        return render_template('market.html', items = items , purchase_form = purchase_form, owned_items = owned_items , selling_form = selling_form)
 
 @app.route("/register", methods=['GET','POST'])
 def register_page():
